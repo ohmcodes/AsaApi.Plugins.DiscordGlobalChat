@@ -1037,7 +1037,7 @@ void SendMessageToDiscord(ModifiedFPrimalChatMessage mfpcm)
 
 	FString msgFormat = L"{{\"content\":\"{}\",\"username\":\"{}\",\"avatar_url\":\"{}\"}}";
 
-	FString nameFormat = "{} ({}) {} [{}] ({}) : {}";
+	FString nameFormat = "[{}] {} ({}) {} [{}] : {}";
 	FString characterName;
 	mfpcm.spc.GetPlayerCharacterName(&characterName);
 
@@ -1048,12 +1048,15 @@ void SendMessageToDiscord(ModifiedFPrimalChatMessage mfpcm)
 		tribe = FString::FromStringUTF8(fmt::format("[{}]", mfpcm.msg.SenderTribeName.ToStringUTF8()));
 	}
 
+	FString mapname;
+	AsaApi::GetApiUtils().GetWorld()->GetMapName(&mapname);
+
 	FString nameOutput = FString::Format(*nameFormat,
+		mapname.ToStringUTF8(),
 		mfpcm.msg.SenderSteamName.ToStringUTF8(),
 		mfpcm.msg.SenderName.ToStringUTF8(),
 		tribe.ToStringUTF8(),
 		GetPlatform(mfpcm.msg.senderPlatform).ToStringUTF8(),
-		GetChatSendModeIntString(mfpcm.msg.SendMode).ToStringUTF8(),
 		mfpcm.msg.Message.ToStringUTF8());
 	
 	FString msgOutput = FString::Format(*msgFormat, mfpcm.msg.Message.ToString(), nameOutput.ToString(), botImgUrl);
