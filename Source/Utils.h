@@ -1055,7 +1055,7 @@ void SendMessageToDiscord(ModifiedFPrimalChatMessage mfpcm)
 		GetPlatform(mfpcm.msg.senderPlatform).ToStringUTF8(),
 		GetChatSendModeIntString(mfpcm.msg.SendMode).ToStringUTF8(),
 		mfpcm.msg.Message.ToStringUTF8());
-
+	
 	FString msgOutput = FString::Format(*msgFormat, mfpcm.msg.Message.ToString(), "ArkBot", botImgUrl);
 
 	std::vector<std::string> headers = {
