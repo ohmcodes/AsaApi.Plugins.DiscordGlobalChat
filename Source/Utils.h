@@ -676,9 +676,11 @@ void callbackPostDiscord(bool success, std::string results, std::unordered_map<s
 	return;
 };
 
+// Deprecated function, use SendMessageToDiscord instead
+#if 0
 void PostToDiscord(FPrimalChatMessage* Chat)
 {
-	if (DiscordGlobalChat::config["Discord"].value("Webhook","").empty())
+	if (DiscordGlobalChat::config["Discord"].value("Webhook", "").empty())
 		return;
 	// https://birdie0.github.io/discord-webhooks-guide/discord_webhook.html
 
@@ -711,21 +713,21 @@ void PostToDiscord(FPrimalChatMessage* Chat)
 	FString senderSteamName = Chat->SenderSteamName;
 	FString senderPlatform = GetPlatform(Chat->senderPlatform);
 
-	if (!DiscordGlobalChat::config["General"].value("ShowSteamname",false))
+	if (!DiscordGlobalChat::config["General"].value("ShowSteamname", false))
 		senderSteamName = "";
 
-	if (!DiscordGlobalChat::config["General"].value("ShowTribename",false))
+	if (!DiscordGlobalChat::config["General"].value("ShowTribename", false))
 		tribe = "";
 
 	if (!senderPlatform.IsEmpty())
 		senderPlatform = FString::FromStringUTF8(fmt::format("[{}]", senderPlatform.ToStringUTF8()));
 
-	if (!DiscordGlobalChat::config["General"].value("ShowPlatform",false))
+	if (!DiscordGlobalChat::config["General"].value("ShowPlatform", false))
 		senderPlatform = "";
 
-	std::string mapName = DiscordGlobalChat::config["General"].value("MapName","[TI]");
+	std::string mapName = DiscordGlobalChat::config["General"].value("MapName", "[TI]");
 
-	if (!DiscordGlobalChat::config["General"].value("ShowMapname",false)) mapName = "";
+	if (!DiscordGlobalChat::config["General"].value("ShowMapname", false)) mapName = "";
 
 
 	FString username = FString::FromStringUTF8(fmt::format("{}{} {} {}{}{}",
@@ -736,7 +738,7 @@ void PostToDiscord(FPrimalChatMessage* Chat)
 		senderPlatform.ToStringUTF8(),
 		sm.ToStringUTF8()));
 
-	FString bot_img = DiscordGlobalChat::config["DiscordBot"].value("BotImageURL","").c_str();
+	FString bot_img = DiscordGlobalChat::config["DiscordBot"].value("BotImageURL", "").c_str();
 
 	std::string url = DiscordGlobalChat::config["DiscordBot"].value("WebHook", "");
 
@@ -786,7 +788,6 @@ void PostToDiscord(FPrimalChatMessage* Chat)
 		Log::GetLog()->error("PostToDiscordError {}", error.what());
 	}
 }
-
 void SendDiscord(FPrimalChatMessage* Chat)
 {
 	if (DiscordGlobalChat::isDebug == true)
@@ -809,6 +810,7 @@ void SendDiscord(FPrimalChatMessage* Chat)
 		throw;
 	}
 }
+#endif
 
 void LogChat(FPrimalChatMessage* Chat)
 {
