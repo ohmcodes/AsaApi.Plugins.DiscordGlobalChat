@@ -83,7 +83,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Includes;$(SolutionDir)Source\Public;$(SolutionDir)..\..\ClonedREPO\AsaApi\AsaApi\Core\Public;$(SolutionDir)..\..\ClonedREPO\AsaApi\AsaApi\Core\Public\API\UE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Includes;$(SolutionDir)Source\Public;$(SolutionDir)..\..\ClonedREPO\AsaApi_released\AsaApi\Core\Public;$(SolutionDir)..\..\ClonedREPO\AsaApi_released\AsaApi\Core\Public\API\UE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
@@ -92,7 +92,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>$(SolutionDir)..\..\ClonedREPO\AsaApi\out_lib\AsaApi.lib;$(SolutionDir)Libs\mysqlclient.lib;Ws2_32.lib;crypt32.lib;iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)..\..\ClonedREPO\AsaApi_released\out_lib\AsaApi.lib;$(SolutionDir)Libs\mysqlclient.lib;Ws2_32.lib;crypt32.lib;iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>if not exist "$(SolutionDir)Output\$(ProjectName)" mkdir "$(SolutionDir)Output\$(ProjectName)"
