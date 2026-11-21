@@ -1037,7 +1037,7 @@ void SendMessageToDiscord(ModifiedFPrimalChatMessage mfpcm)
 
 	FString msgFormat = L"{{\"content\":\"{}\",\"username\":\"{}\",\"avatar_url\":\"{}\"}}";
 
-	FString nameFormat = "[{}] {} ({}) {} [{}]";
+	FString nameFormat = "{} {} ({}) {} [{}]";
 	FString characterName;
 	mfpcm.spc.GetPlayerCharacterName(&characterName);
 
