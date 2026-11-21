@@ -1,7 +1,7 @@
 {
   "General": {
     "Debug": true,
-    "IgnoreInvRepairRequirements": true
+    "MapName": "[TI]"
   },
   "Debug": {
     "PluginTemplate": true,

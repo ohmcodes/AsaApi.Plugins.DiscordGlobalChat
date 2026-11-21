@@ -1,16 +1,12 @@
 {
   "General": {
     "Debug": true,
-    "IgnoreInvRepairRequirements": true
+    "MapName": "[TI]"
   },
   "Debug": {
     "PluginTemplate": true,
     "Permissions": true,
     "Points": true
-  },
-  "Commands": {
-    "RepairItemCMD": "/repairitems",
-    "DeletePlayerCMD": "/deleteplayer"
   },
   "Messages": {
     "RepairItemsMSG": "All items has been repaired. {}",
