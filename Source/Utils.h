@@ -8,152 +8,6 @@ static bool startsWith(const std::string& str, const std::string& prefix)
 	return str.size() >= prefix.size() && str.compare(0, prefix.size(), prefix) == 0;
 }
 
-void FetchMessageFromDiscordCallback(bool success, std::string results)
-{
-	//Log::GetLog()->warn("Function: {}", __FUNCTION__);
-
-	if (success)
-	{
-		if(results.empty()) return;
-
-		try
-		{
-			nlohmann::json parsed = nlohmann::json::parse(results);
-
-			if (parsed.is_null())
-			{
-				Log::GetLog()->warn("resObj is null");
-				return;
-			}
-			nlohmann::json  resObj = parsed[0];
-
-			auto globalName = resObj["author"]["global_name"];
-
-			// if not sent by bot
-			if (resObj.contains("bot") && globalName.is_null())
-			{
-				Log::GetLog()->warn("the sender is bot");
-				return;
-			}
-
-			std::string msg = resObj["content"].get<std::string>();
-
-			//if (!startsWith(msg, "!"))
-			//{
-			//	//Log::GetLog()->warn("message not startswith !");
-			//	return;
-			//}
-
-			if (DiscordGlobalChat::lastMessageID == resObj["id"].get<std::string>()) return;
-
-			std::string sender = fmt::format("Discord: {}", globalName.get<std::string>());
-
-			AsaApi::GetApiUtils().SendChatMessageToAll(FString(sender), msg.c_str());
-
-			DiscordGlobalChat::lastMessageID = resObj["id"].get<std::string>();
-		}
-		catch (const std::exception& error)
-		{
-			[[maybe_unused]] const auto& err = error;
-			//log::getlog()->error("error parsing json results. error: {}",error.what());
-		}
-	}
-	else
-	{
-		Log::GetLog()->warn("Failed to fetch messages. success: {}", success);
-	}
-}
-
-void FetchMessageFromDiscord()
-{
-	//Log::GetLog()->warn("Function: {}", __FUNCTION__);
-	// TODO: Validate token and channelID
-
-	std::string botToken = DiscordGlobalChat::config["DiscordBot"].value("BotToken","");
-
-	if (botToken.empty()) return;
-
-	std::string channelID = DiscordGlobalChat::config["DiscordBot"].value("ChannelID", "");
-
-	if (channelID.empty()) return;
-
-	std::string apiURL = FString::Format("https://discord.com/api/v10/channels/{}/messages?limit=1", channelID).ToString();
-
-
-	std::vector<std::string> headers = {
-		"Content-Type: application/json",
-		"User-Agent: DiscordGlobalChat/1.0",
-		"Connection: keep-alive",
-		"Accept: */*",
-		"Content-Length: 0",
-		"Authorization: Bot " + botToken
-	};
-
-	try
-	{
-		bool req = DiscordGlobalChat::req.CreateGetRequest(apiURL, FetchMessageFromDiscordCallback, headers);
-
-		if (!req)
-			Log::GetLog()->error("Failed to perform Get request. req = {}", req);
-	}
-	catch (const std::exception& error)
-	{
-		[[maybe_unused]] const auto& err = error;
-		//Log::GetLog()->error("Failed to perform Get request. Error: {}", error.what());
-	}
-}
-
-void SendMessageToDiscordCallback(bool success, std::string results, std::unordered_map<std::string, std::string> responseHeaders)
-{
-	if (!success)
-	{
-		Log::GetLog()->error("Failed to send Post request. {} {} {}", __FUNCTION__, success, results);
-	}
-	else
-	{
-		Log::GetLog()->info("Success. {} {} {}", __FUNCTION__, success, results);
-	}
-}
-
-void SendMessageToDiscord(FString msg)
-{
-
-	// Note: This cant be on Hooks or else every messages will be send to discord
-
-	//Log::GetLog()->warn("Function: {}", __FUNCTION__);
-
-	if (msg.StartsWith("Discord:")) { return; }
-
-	
-	std::string webhook = DiscordGlobalChat::config["DiscordBot"].value("Webhook", "");
-	std::string botImgUrl = DiscordGlobalChat::config["DiscordBot"].value("BotImageURL", "");
-
-	if (webhook == "" || webhook.empty()) return;
-
-	FString msgFormat = L"{{\"content\":\"{}\",\"username\":\"{}\",\"avatar_url\":\"{}\"}}";
-
-	FString msgOutput = FString::Format(*msgFormat, msg.ToString(), "ArkBot", botImgUrl);
-
-	std::vector<std::string> headers = {
-		"Content-Type: application/json",
-		"User-Agent: DiscordGlobalChat/1.0",
-		"Connection: keep-alive",
-		"Accept: */*"
-	};
-
-	try
-	{
-		bool req = DiscordGlobalChat::req.CreatePostRequest(webhook, SendMessageToDiscordCallback, msgOutput.ToStringUTF8(), "application/json", headers);
-
-		if(!req)
-			Log::GetLog()->error("Failed to send Post request. req = {}", req);
-	}
-	catch (const std::exception& error)
-	{
-		Log::GetLog()->error("Failed to send Post request. Error: {}", error.what());
-	}
-}
-
 bool Points(FString eos_id, int cost, bool check_points = false)
 {
 	if (cost == -1)
@@ -1059,6 +913,171 @@ void SendMessageToAll(ModifiedFPrimalChatMessage mfpcm)
 	}
 }
 
+void FetchMessageFromDiscordCallback(bool success, std::string results)
+{
+	//Log::GetLog()->warn("Function: {}", __FUNCTION__);
+
+	if (success)
+	{
+		if (results.empty()) return;
+
+		try
+		{
+			nlohmann::json parsed = nlohmann::json::parse(results);
+
+			if (parsed.is_null())
+			{
+				Log::GetLog()->warn("resObj is null");
+				return;
+			}
+			nlohmann::json  resObj = parsed[0];
+
+			auto globalName = resObj["author"]["global_name"];
+
+			// if not sent by bot
+			if (resObj.contains("bot") && globalName.is_null())
+			{
+				Log::GetLog()->warn("the sender is bot");
+				return;
+			}
+
+			std::string msg = resObj["content"].get<std::string>();
+
+			//if (!startsWith(msg, "!"))
+			//{
+			//	//Log::GetLog()->warn("message not startswith !");
+			//	return;
+			//}
+
+			if (DiscordGlobalChat::lastMessageID == resObj["id"].get<std::string>()) return;
+
+			std::string sender = fmt::format("Discord: {}", globalName.get<std::string>());
+
+			AsaApi::GetApiUtils().SendChatMessageToAll(FString(sender), msg.c_str());
+
+			DiscordGlobalChat::lastMessageID = resObj["id"].get<std::string>();
+		}
+		catch (const std::exception& error)
+		{
+			[[maybe_unused]] const auto& err = error;
+			//log::getlog()->error("error parsing json results. error: {}",error.what());
+		}
+	}
+	else
+	{
+		Log::GetLog()->warn("Failed to fetch messages. success: {}", success);
+	}
+}
+
+void FetchMessageFromDiscord()
+{
+	//Log::GetLog()->warn("Function: {}", __FUNCTION__);
+	// TODO: Validate token and channelID
+
+	std::string botToken = DiscordGlobalChat::config["DiscordBot"].value("BotToken", "");
+
+	if (botToken.empty()) return;
+
+	std::string channelID = DiscordGlobalChat::config["DiscordBot"].value("ChannelID", "");
+
+	if (channelID.empty()) return;
+
+	std::string apiURL = FString::Format("https://discord.com/api/v10/channels/{}/messages?limit=1", channelID).ToString();
+
+
+	std::vector<std::string> headers = {
+		"Content-Type: application/json",
+		"User-Agent: DiscordGlobalChat/1.0",
+		"Connection: keep-alive",
+		"Accept: */*",
+		"Content-Length: 0",
+		"Authorization: Bot " + botToken
+	};
+
+	try
+	{
+		bool req = DiscordGlobalChat::req.CreateGetRequest(apiURL, FetchMessageFromDiscordCallback, headers);
+
+		if (!req)
+			Log::GetLog()->error("Failed to perform Get request. req = {}", req);
+	}
+	catch (const std::exception& error)
+	{
+		[[maybe_unused]] const auto& err = error;
+		//Log::GetLog()->error("Failed to perform Get request. Error: {}", error.what());
+	}
+}
+
+void SendMessageToDiscordCallback(bool success, std::string results, std::unordered_map<std::string, std::string> responseHeaders)
+{
+	if (!success)
+	{
+		Log::GetLog()->error("Failed to send Post request. {} {} {}", __FUNCTION__, success, results);
+	}
+	else
+	{
+		Log::GetLog()->info("Success. {} {} {}", __FUNCTION__, success, results);
+	}
+}
+
+void SendMessageToDiscord(ModifiedFPrimalChatMessage mfpcm)
+{
+
+	// Note: This cant be on Hooks or else every messages will be send to discord
+
+	//Log::GetLog()->warn("Function: {}", __FUNCTION__);
+
+	if (mfpcm.msg.Message.StartsWith("Discord:")) { return; }
+
+
+	std::string webhook = DiscordGlobalChat::config["DiscordBot"].value("Webhook", "");
+	std::string botImgUrl = DiscordGlobalChat::config["DiscordBot"].value("BotImageURL", "");
+
+	if (webhook == "" || webhook.empty()) return;
+
+	FString msgFormat = L"{{\"content\":\"{}\",\"username\":\"{}\",\"avatar_url\":\"{}\"}}";
+
+	FString nameFormat = "{} ({}) {} [{}] ({}) : {}";
+	FString characterName;
+	mfpcm.spc.GetPlayerCharacterName(&characterName);
+
+	FString tribe = "";
+	// modify tribe
+	if (mfpcm.msg.SenderTribeName.ToString() != "")
+	{
+		tribe = FString::FromStringUTF8(fmt::format("[{}]", mfpcm.msg.SenderTribeName.ToStringUTF8()));
+	}
+
+	FString nameOutput = FString::Format(*nameFormat,
+		mfpcm.msg.SenderSteamName.ToStringUTF8(),
+		mfpcm.msg.SenderName.ToStringUTF8(),
+		tribe.ToStringUTF8(),
+		GetPlatform(mfpcm.msg.senderPlatform).ToStringUTF8(),
+		GetChatSendModeIntString(mfpcm.msg.SendMode).ToStringUTF8(),
+		mfpcm.msg.Message.ToStringUTF8());
+
+	FString msgOutput = FString::Format(*msgFormat, mfpcm.msg.Message.ToString(), "ArkBot", botImgUrl);
+
+	std::vector<std::string> headers = {
+		"Content-Type: application/json",
+		"User-Agent: DiscordGlobalChat/1.0",
+		"Connection: keep-alive",
+		"Accept: */*"
+	};
+
+	try
+	{
+		bool req = DiscordGlobalChat::req.CreatePostRequest(webhook, SendMessageToDiscordCallback, msgOutput.ToStringUTF8(), "application/json", headers);
+
+		if (!req)
+			Log::GetLog()->error("Failed to send Post request. req = {}", req);
+	}
+	catch (const std::exception& error)
+	{
+		Log::GetLog()->error("Failed to send Post request. Error: {}", error.what());
+	}
+}
+
 #if 0
 void SaveSqlCrossServerChat(FPrimalChatMessage* Chat)
 {
@@ -1170,7 +1189,7 @@ bool ChatMessageCallback(AShooterPlayerController* player_controller, FString* M
 	*/
 #pragma endregion
 
-	SendMessageToDiscord(mfpcm.msg.Message);
+	SendMessageToDiscord(mfpcm);
 
 	//SendMessageToAll(mfpcm);
 
